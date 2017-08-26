@@ -28,6 +28,7 @@ void print_impl(T v, Ts... args) {
 }  // namespace detail end
 
 enum class severity : unsigned int {
+  NONE = 0,
   EMERG,
   ALERT,
   CRIT,
@@ -50,6 +51,11 @@ struct Severity {
 
 using DebugSeverity = Severity<severity::DEBUG>;
 using LowestSeverity = DebugSeverity;
+
+using EmergSeverity = Severity<severity::EMERG>;
+using HighestSeverity = DebugSeverity;
+
+using NoSeverity = Severity<severity::NONE>;
 
 template <typename Output, typename SeverityFilter, typename Prefix>
 struct logiath {
