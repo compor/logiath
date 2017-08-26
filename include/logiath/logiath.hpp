@@ -27,7 +27,7 @@ void print_impl(T v, Ts... args) {
 
 }  // namespace detail end
 
-enum class severity_t : unsigned int {
+enum class severity : unsigned int {
   EMERG,
   ALERT,
   CRIT,
@@ -38,15 +38,18 @@ enum class severity_t : unsigned int {
   DEBUG
 };
 
-template <severity_t severity>
+template <severity S>
 struct Severity {
   Severity() = delete;
   Severity(const Severity &) = delete;
 
-  const std::string &operator() const { return std::string{""}; }
+  std::string operator()() const { return std::string{""}; }
 
-  severity_t value = severity;
+  severity value = S;
 };
+
+using DebugSeverity = Severity<severity::DEBUG>;
+using LowestSeverity = DebugSeverity;
 
 template <typename Output, typename SeverityFilter, typename Prefix>
 struct logiath {
