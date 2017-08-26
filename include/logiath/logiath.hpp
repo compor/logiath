@@ -57,6 +57,13 @@ using HighestSeverity = DebugSeverity;
 
 using NoSeverity = Severity<severity::NONE>;
 
+struct NoPrefix {
+  NoPrefix() = delete;
+  NoPrefix(const NoPrefix &) = delete;
+
+  std::string operator()() const { return std::string{""}; }
+};
+
 template <typename Output, typename SeverityFilter, typename Prefix>
 struct logiath {
   template <typename... Ts>
