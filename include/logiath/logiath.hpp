@@ -52,25 +52,20 @@ struct Severity {
 template <severity S>
 const severity Severity<S>::value = S;
 
-template <severity S, severity K>
-bool operator==(const Severity<S> &s, const Severity<K> &k) {
-  return S == K;
-}
+#define OP(op, S, K, expr)                                       \
+  template <severity S, severity K>                              \
+  bool operator op(const Severity<S> &s, const Severity<K> &k) { \
+    return expr;                                                 \
+  }
 
-template <severity S, severity K>
-bool operator!=(const Severity<S> &s, const Severity<K> &k) {
-  return !(s == k);
-}
+OP(==, S, K, S == K)
+OP(!=, S, K, S != K)
+OP(<, S, K, S < K)
+OP(<=, S, K, S <= K)
+OP(>, S, K, S > K)
+OP(>=, S, K, S >= K)
 
-template <severity S, severity K>
-bool operator<(const Severity<S> &s, const Severity<K> &k) {
-  return S < K;
-}
-
-template <severity S, severity K>
-bool operator>(const Severity<S> &s, const Severity<K> &k) {
-  return !(S < K);
-}
+#undef OP
 
 using DebugSeverity = Severity<severity::DEBUG>;
 using LowestSeverity = DebugSeverity;
