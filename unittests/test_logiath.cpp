@@ -20,14 +20,23 @@ class test_logiath : public testing::Test {
 };
 
 TEST_F(test_logiath, severity_comparisons) {
-  Severity<severity::ALERT> alert;
-  Severity<severity::ERR> err;
+  SeverityFilter<severity::ALERT> alert;
+  SeverityFilter<severity::ERR> err;
 
-  auto cmp1 = (alert < err);
-  auto cmp2 = (alert > err);
-  auto cmp3 = (alert > severity::alert);
+  auto cmp1 = err.isMoreSevere(alert);
+  auto cmp2 = alert.isMoreSevere(err);
+  auto cmp3 = err.isMoreSevere(severity::ALERT);
 
-  EXPECT_TRUE(cmp1 && !cmp2);
+  EXPECT_TRUE(cmp1 && !cmp2 && cmp3);
+}
+
+TEST_F(test_logiath, output) {
+  SeverityFilter<severity::ALERT> alert;
+
+  Logiath<int, decltype(alert), NoPrefix> logger;
+  logger.log(severity::ALERT, "test");
+
+  EXPECT_TRUE(true);
 }
 
 }  // namespace anonymous end

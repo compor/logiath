@@ -20,7 +20,7 @@ namespace detail {
 void print_impl() { std::cout << std::endl; }
 
 template <typename T, typename... Ts>
-void print_impl(T v, Ts... args) {
+void print_impl(const T &v, Ts... args) {
   std::cout << v;
   print_impl(args...);
 }
@@ -40,55 +40,43 @@ enum class severity : unsigned int {
 };
 
 template <severity S>
-struct Severity {
-  Severity() = default;
-  Severity(const Severity &) = delete;
+struct SeverityFilter {
+  static severity getSeverity() { return value; }
+  static bool isMoreSevere(severity s) { return value > s; }
 
-  std::string operator()() const { return std::string{""}; }
+  template <severity U>
+  static bool isMoreSevere(SeverityFilter<U> other) {
+    return S >= U;
+  }
 
+ protected:
   const static severity value;
 };
 
 template <severity S>
-const severity Severity<S>::value = S;
+const severity SeverityFilter<S>::value = S;
 
-#define OP(op, S, K, expr)                                       \
-  template <severity S, severity K>                              \
-  bool operator op(const Severity<S> &s, const Severity<K> &k) { \
-    return expr;                                                 \
-  }
+using DebugSeverityFilter = SeverityFilter<severity::DEBUG>;
+using LowestSeverityFilter = DebugSeverityFilter;
 
-OP(==, S, K, S == K)
-OP(!=, S, K, S != K)
-OP(<, S, K, S < K)
-OP(<=, S, K, S <= K)
-OP(>, S, K, S > K)
-OP(>=, S, K, S >= K)
+using EmergSeverityFilter = SeverityFilter<severity::EMERG>;
+using HighestSeverityFilter = DebugSeverityFilter;
 
-#undef OP
-
-using DebugSeverity = Severity<severity::DEBUG>;
-using LowestSeverity = DebugSeverity;
-
-using EmergSeverity = Severity<severity::EMERG>;
-using HighestSeverity = DebugSeverity;
-
-using NoSeverity = Severity<severity::NONE>;
+using NoSeverityFilter = SeverityFilter<severity::NONE>;
 
 struct NoPrefix {
-  NoPrefix() = delete;
-  NoPrefix(const NoPrefix &) = delete;
-
-  std::string operator()() const { return std::string{""}; }
+  static std::string getPrefix() { return std::string{""}; }
 };
 
 template <typename Output, typename SeverityFilter, typename Prefix>
-struct logiath : SeverityFilter {
-  template <severity s, typename... Ts>
-  void log(Ts... args) {
-    if (s > *this) return;
+struct Logiath : SeverityFilter, Prefix {
+  template <typename... Ts>
+  void log(severity s, Ts... args) {
+    if (!SeverityFilter::isMoreSevere(s)) return;
 
-    print_impl(args...);
+    std::cout << Prefix::getPrefix();
+
+    detail::print_impl(args...);
 
     return;
   }
