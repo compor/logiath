@@ -41,13 +41,36 @@ enum class severity : unsigned int {
 
 template <severity S>
 struct Severity {
-  Severity() = delete;
+  Severity() = default;
   Severity(const Severity &) = delete;
 
   std::string operator()() const { return std::string{""}; }
 
-  severity value = S;
+  const static severity value;
 };
+
+template <severity S>
+const severity Severity<S>::value = S;
+
+template <severity S, severity K>
+bool operator==(const Severity<S> &s, const Severity<K> &k) {
+  return S == K;
+}
+
+template <severity S, severity K>
+bool operator!=(const Severity<S> &s, const Severity<K> &k) {
+  return !(s == k);
+}
+
+template <severity S, severity K>
+bool operator<(const Severity<S> &s, const Severity<K> &k) {
+  return S < K;
+}
+
+template <severity S, severity K>
+bool operator>(const Severity<S> &s, const Severity<K> &k) {
+  return !(S < K);
+}
 
 using DebugSeverity = Severity<severity::DEBUG>;
 using LowestSeverity = DebugSeverity;
@@ -65,9 +88,11 @@ struct NoPrefix {
 };
 
 template <typename Output, typename SeverityFilter, typename Prefix>
-struct logiath {
-  template <typename... Ts>
+struct logiath : SeverityFilter {
+  template <severity s, typename... Ts>
   void log(Ts... args) {
+    if (s > *this) return;
+
     print_impl(args...);
 
     return;
