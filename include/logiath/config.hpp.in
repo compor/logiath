@@ -2,8 +2,12 @@
 #ifndef LOGIATH_CONFIG_HPP
 #define LOGIATH_CONFIG_HPP
 
-#define @PRJ_NAME_UPPER @_DEBUG @PRJ_DEBUG_VALUE @
+// clang-format off
 
-#define @PRJ_NAME_UPPER @_VERSION @PRJ_VERSION @
+#define @PRJ_NAME_UPPER@_DEBUG @PRJ_DEBUG_VALUE@
+
+#define @PRJ_NAME_UPPER@_VERSION @PRJ_VERSION@
+
+// clang-format on
 
 #endif  // header
