@@ -25,6 +25,7 @@ TEST_F(test_logiath, severity_comparisons) {
 
   auto cmp1 = (alert < err);
   auto cmp2 = (alert > err);
+  auto cmp3 = (alert > severity::alert);
 
   EXPECT_TRUE(cmp1 && !cmp2);
 }
