@@ -15,18 +15,6 @@
 
 namespace logiath {
 
-namespace detail {
-
-void print_impl() { std::cout << std::endl; }
-
-template <typename T, typename... Ts>
-void print_impl(const T &v, Ts... args) {
-  std::cout << v;
-  print_impl(args...);
-}
-
-}  // namespace detail end
-
 enum class severity : unsigned int {
   NONE = 0,
   EMERG,
@@ -68,17 +56,46 @@ struct NoPrefix {
   static std::string getPrefix() { return std::string{""}; }
 };
 
+namespace detail {
+
+template <typename Output>
+struct Printer : Output {
+  template <typename T>
+  static void vprint(const T &v) {
+    Output::print(v);
+  }
+
+  template <typename T, typename... Ts>
+  static void vprint(const T &v, Ts... args) {
+    Output::print(v);
+    print_impl(args...);
+  }
+};
+
+}  // namespace detail end
+
+struct NoOutput {
+  static void open() {}
+  static void close() {}
+
+  template <typename T>
+  static void print(const T &) {}
+};
+
 template <typename Output, typename SeverityFilter, typename Prefix>
-struct Logiath : SeverityFilter, Prefix {
+struct Logiath : SeverityFilter, Prefix, detail::Printer<Output> {
+  Logiath() { Output::open(); }
+  ~Logiath() { Output::close(); }
+
+  Logiath(const Logiath &) = delete;
+  Logiath &operator=(const Logiath &) = delete;
+
   template <typename... Ts>
   void log(severity s, Ts... args) {
     if (!SeverityFilter::isMoreSevere(s)) return;
 
-    std::cout << Prefix::getPrefix();
-
-    detail::print_impl(args...);
-
-    return;
+    Output::print(Prefix::getPrefix());
+    detail::Printer<Output>::vprint(args...);
   }
 };
 
