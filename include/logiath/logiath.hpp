@@ -28,11 +28,11 @@ enum class severity : unsigned int {
 template <severity S>
 struct SeverityFilter {
   static severity getSeverity() { return value; }
-  static bool isMoreSevere(severity s) { return value > s; }
+  static bool isHigherThan(severity s) { return value > s; }
 
   template <severity U>
-  static bool isMoreSevere(SeverityFilter<U> other) {
-    return S >= U;
+  static bool isHigherThan(const SeverityFilter<U> &other) {
+    return S > U;
   }
 
  protected:
@@ -100,7 +100,7 @@ struct Logiath : SeverityFilter, Prefix, detail::Printer<Output> {
 
   template <typename... Ts>
   void log(severity s, Ts... args) {
-    if (!SeverityFilter::isMoreSevere(s)) return;
+    if (SeverityFilter::isHigherThan(s)) return;
 
     detail::Printer<Output>::vprint(Prefix::getPrefix(), args...);
   }

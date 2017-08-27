@@ -5,9 +5,6 @@
 #include "gtest/gtest.h"
 // using testing::Test
 
-#include <cstdlib>
-// using std::exit
-
 #include "logiath/logiath.hpp"
 
 using namespace logiath;
@@ -23,17 +20,26 @@ TEST_F(test_logiath, severity_comparisons) {
   SeverityFilter<severity::ALERT> alert;
   SeverityFilter<severity::ERR> err;
 
-  auto cmp1 = err.isMoreSevere(alert);
-  auto cmp2 = alert.isMoreSevere(err);
-  auto cmp3 = err.isMoreSevere(severity::ALERT);
+  auto cmp1 = err.isHigherThan(alert);
+  auto cmp2 = alert.isHigherThan(err);
+  auto cmp3 = err.isHigherThan(severity::ALERT);
 
   EXPECT_TRUE(cmp1 && !cmp2 && cmp3);
 }
 
-TEST_F(test_logiath, output) {
+TEST_F(test_logiath, no_output) {
   SeverityFilter<severity::ALERT> alert;
 
   Logiath<NoOutput, decltype(alert), NoPrefix> logger;
+  logger.log(severity::ALERT, "test");
+
+  EXPECT_TRUE(true);
+}
+
+TEST_F(test_logiath, err_output) {
+  SeverityFilter<severity::ALERT> alert;
+
+  Logiath<CerrOutput, decltype(alert), NoPrefix> logger;
   logger.log(severity::ALERT, "test");
 
   EXPECT_TRUE(true);
