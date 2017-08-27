@@ -92,6 +92,10 @@ struct CerrOutput {
 
 template <typename Output, typename SeverityFilter, typename Prefix>
 struct Logiath : SeverityFilter, Prefix, detail::Printer<Output> {
+  using output_policy = Output;
+  using prefix_policy = Prefix;
+  using severity_filter_policy = SeverityFilter;
+
   Logiath() { Output::open(); }
   ~Logiath() { Output::close(); }
 
