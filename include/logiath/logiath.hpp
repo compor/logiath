@@ -80,6 +80,16 @@ struct NoOutput {
   static void print(const T &) {}
 };
 
+struct CerrOutput {
+  static void open() {}
+  static void close() {}
+
+  template <typename T>
+  static void print(const T &v) {
+    std::cerr << v;
+  }
+};
+
 template <typename Output, typename SeverityFilter, typename Prefix>
 struct Logiath : SeverityFilter, Prefix, detail::Printer<Output> {
   Logiath() { Output::open(); }
