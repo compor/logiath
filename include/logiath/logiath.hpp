@@ -14,7 +14,6 @@
 namespace logiath {
 
 enum class severity : unsigned int {
-  NONE = 0,
   EMERG,
   ALERT,
   CRIT,
@@ -42,17 +41,10 @@ struct SeverityFilter {
 template <severity S>
 const severity SeverityFilter<S>::value = S;
 
-using DebugSeverityFilter = SeverityFilter<severity::DEBUG>;
-using LowestSeverityFilter = DebugSeverityFilter;
-
 using EmergSeverityFilter = SeverityFilter<severity::EMERG>;
+using LowestSeverityFilter = EmergSeverityFilter;
+using DebugSeverityFilter = SeverityFilter<severity::DEBUG>;
 using HighestSeverityFilter = DebugSeverityFilter;
-
-using NoSeverityFilter = SeverityFilter<severity::NONE>;
-
-struct NoPrefix {
-  static std::string getPrefix() { return std::string{""}; }
-};
 
 namespace detail {
 
