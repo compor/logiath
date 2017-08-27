@@ -114,6 +114,21 @@ class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
   }
 };
 
+template <typename SeverityFilter, typename Prefix, typename Suffix>
+class Logiath<NoOutput, SeverityFilter, Prefix, Suffix> {
+ public:
+  using output_policy = NoOutput;
+
+  Logiath() = default;
+  ~Logiath() = default;
+
+  Logiath(const Logiath &) = delete;
+  Logiath &operator=(const Logiath &) = delete;
+
+  template <typename... Ts>
+  void log(Ts... args) {}
+};
+
 }  // namespace logiath end
 
 #endif  // header

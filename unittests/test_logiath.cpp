@@ -30,7 +30,7 @@ TEST_F(test_logiath, severity_comparisons) {
 TEST_F(test_logiath, no_output) {
   SeverityFilter<severity::ALERT> alert;
 
-  Logiath<NoOutput, decltype(alert), NoPrefix> logger;
+  Logiath<NoOutput> logger;
   logger.log(severity::ALERT, "test");
 
   EXPECT_TRUE(true);
