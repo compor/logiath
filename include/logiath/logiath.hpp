@@ -5,9 +5,6 @@
 #ifndef LOGIATH_HPP
 #define LOGIATH_HPP
 
-#include <string>
-// using std::string
-
 #include <iostream>
 // using std::cerr
 
@@ -64,6 +61,14 @@ struct Printer : Output {
 
 }  // namespace detail end
 
+struct NoPrefix {
+  static constexpr decltype(auto) get() { return ""; }
+};
+
+struct NewlineSuffix {
+  static constexpr decltype(auto) get() { return "\n"; }
+};
+
 struct NoOutput {
   static void open() {}
   static void close() {}
@@ -82,10 +87,16 @@ struct CerrOutput {
   }
 };
 
-template <typename Output, typename SeverityFilter, typename Prefix>
-struct Logiath : SeverityFilter, Prefix, detail::Printer<Output> {
+template <typename Output, typename SeverityFilter = LowestSeverityFilter,
+          typename Prefix = NoPrefix, typename Suffix = NewlineSuffix>
+class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
+ protected:
+  using printer = detail::Printer<Output>;
+
+ public:
   using output_policy = Output;
   using prefix_policy = Prefix;
+  using suffix_policy = Suffix;
   using severity_filter_policy = SeverityFilter;
 
   Logiath() { Output::open(); }
@@ -98,7 +109,8 @@ struct Logiath : SeverityFilter, Prefix, detail::Printer<Output> {
   void log(severity s, Ts... args) {
     if (SeverityFilter::isHigherThan(s)) return;
 
-    detail::Printer<Output>::vprint(Prefix::getPrefix(), args...);
+    printer::vprint(Prefix::get(), args...);
+    printer::vprint(Suffix::get());
   }
 };
 
