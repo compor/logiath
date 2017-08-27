@@ -102,8 +102,7 @@ struct Logiath : SeverityFilter, Prefix, detail::Printer<Output> {
   void log(severity s, Ts... args) {
     if (!SeverityFilter::isMoreSevere(s)) return;
 
-    Output::print(Prefix::getPrefix());
-    detail::Printer<Output>::vprint(args...);
+    detail::Printer<Output>::vprint(Prefix::getPrefix(), args...);
   }
 };
 
