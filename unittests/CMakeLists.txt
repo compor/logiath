@@ -34,7 +34,7 @@ foreach(prj_test_name ${PRJ_TEST_NAMES})
   add_executable(${prj_test_name} ${TEST_SOURCES})
 
   set_target_properties(${prj_test_name} PROPERTIES 
-    CXX_STANDARD 14
+    CXX_STANDARD 11
     CXX_STANDARD_REQUIRED ON
     CMAKE_CXX_EXTENSIONS OFF)
 

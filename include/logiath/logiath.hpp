@@ -62,11 +62,11 @@ struct Printer : Output {
 }  // namespace detail end
 
 struct NoPrefix {
-  static constexpr decltype(auto) get() { return ""; }
+  static constexpr auto get() -> const char * { return ""; }
 };
 
 struct NewlineSuffix {
-  static constexpr decltype(auto) get() { return "\n"; }
+  static constexpr auto get() -> const char * { return "\n"; }
 };
 
 struct NoOutput {
