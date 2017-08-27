@@ -9,9 +9,7 @@
 // using std::string
 
 #include <iostream>
-// using std::ostream
-// using std::cout
-// using std::endl
+// using std::cerr
 
 namespace logiath {
 
@@ -68,7 +66,7 @@ struct Printer : Output {
   template <typename T, typename... Ts>
   static void vprint(const T &v, Ts... args) {
     Output::print(v);
-    print_impl(args...);
+    vprint(args...);
   }
 };
 
