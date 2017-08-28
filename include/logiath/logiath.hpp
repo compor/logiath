@@ -5,7 +5,7 @@
 #ifndef LOGIATH_HPP
 #define LOGIATH_HPP
 
-#include "config.hpp"
+#include "logiath/config.hpp"
 
 #include <type_traits>
 // using std::enable_if

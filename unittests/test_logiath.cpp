@@ -5,27 +5,19 @@
 #include "gtest/gtest.h"
 // using testing::Test
 
-#include "logiath/logiath.hpp"
-
 #include <iostream>
 // using std::cerr
 
 #include <string>
 // using std::string
 
+#include "logiath/logiath.hpp"
+
+#include "examples/util.hpp"
+
 using namespace logiath;
 
 namespace {
-
-struct CerrOutput {
-  static void open() {}
-  static void close() {}
-
-  template <typename T>
-  static void print(const T &v) {
-    std::cerr << v;
-  }
-};
 
 class test_logiath : public testing::Test {
  public:
@@ -45,7 +37,7 @@ TEST_F(test_logiath, err_output) {
   SeverityFilter<severity::ALERT> alert;
   std::string txt{"more test"};
 
-  Logiath<CerrOutput, decltype(alert), NoPrefix> logger;
+  Logiath<example::CerrOutput, decltype(alert), NoPrefix> logger;
   logger.log(ALERT, "test", " ", txt);
 
   logger.set_severity(WARN);
