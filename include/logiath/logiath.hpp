@@ -5,6 +5,8 @@
 #ifndef LOGIATH_HPP
 #define LOGIATH_HPP
 
+#include <type_traits>
+
 namespace logiath {
 
 enum class severity : unsigned int {
@@ -18,17 +20,25 @@ enum class severity : unsigned int {
   DEBUG
 };
 
+#define LOGIATH_SEVERITY(NAME)                        \
+  struct NAME##_t final {                             \
+    static constexpr severity value = severity::NAME; \
+    static constexpr char const *const name = #NAME;  \
+  } NAME;
+
+LOGIATH_SEVERITY(EMERG);
+LOGIATH_SEVERITY(ALERT);
+LOGIATH_SEVERITY(CRIT);
+LOGIATH_SEVERITY(ERR);
+LOGIATH_SEVERITY(WARN);
+LOGIATH_SEVERITY(NOTICE);
+LOGIATH_SEVERITY(INFO);
+LOGIATH_SEVERITY(DEBUG);
+
+#undef LOGIATH_SEVERITY
+
 template <severity S>
 struct SeverityFilter {
-  static constexpr severity getSeverity() { return value; }
-  static constexpr bool isHigherThan(severity s) { return value > s; }
-
-  template <severity U>
-  static constexpr bool isHigherThan(const SeverityFilter<U> &other) {
-    return S > U;
-  }
-
- protected:
   static constexpr severity value = S;
 };
 
@@ -89,13 +99,16 @@ class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
   Logiath(const Logiath &) = delete;
   Logiath &operator=(const Logiath &) = delete;
 
-  template <typename... Ts>
-  void log(severity s, Ts... args) {
-    if (SeverityFilter::isHigherThan(s)) return;
-
+  template <typename S, typename... Ts>
+  typename std::enable_if<(S::value >= SeverityFilter::value)>::type log(
+      S s, Ts... args) {
     printer::vprint(Prefix::get(), args...);
     printer::vprint(Suffix::get());
   }
+
+  template <typename S, typename... Ts>
+  typename std::enable_if<(S::value < SeverityFilter::value)>::type log(
+      S s, Ts... args) {}
 };
 
 template <typename SeverityFilter, typename Prefix, typename Suffix>
