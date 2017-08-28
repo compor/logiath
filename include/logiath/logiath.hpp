@@ -20,20 +20,17 @@ enum class severity : unsigned int {
 
 template <severity S>
 struct SeverityFilter {
-  static severity getSeverity() { return value; }
-  static bool isHigherThan(severity s) { return value > s; }
+  static constexpr severity getSeverity() { return value; }
+  static constexpr bool isHigherThan(severity s) { return value > s; }
 
   template <severity U>
-  static bool isHigherThan(const SeverityFilter<U> &other) {
+  static constexpr bool isHigherThan(const SeverityFilter<U> &other) {
     return S > U;
   }
 
  protected:
-  const static severity value;
+  static constexpr severity value = S;
 };
-
-template <severity S>
-const severity SeverityFilter<S>::value = S;
 
 using EmergSeverityFilter = SeverityFilter<severity::EMERG>;
 using LowestSeverityFilter = EmergSeverityFilter;

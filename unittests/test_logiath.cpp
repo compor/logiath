@@ -10,6 +10,9 @@
 #include <iostream>
 // using std::cerr
 
+#include <string>
+// using std::string
+
 using namespace logiath;
 
 namespace {
@@ -51,9 +54,10 @@ TEST_F(test_logiath, no_output) {
 
 TEST_F(test_logiath, err_output) {
   SeverityFilter<severity::ALERT> alert;
+  std::string txt{"more test"};
 
   Logiath<CerrOutput, decltype(alert), NoPrefix> logger;
-  logger.log(severity::ALERT, "test");
+  logger.log(severity::ALERT, "test", " ", txt);
 
   EXPECT_TRUE(true);
 }
