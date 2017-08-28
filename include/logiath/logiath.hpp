@@ -84,7 +84,7 @@ struct NoOutput {
   void close() {}
 
   template <typename T>
-  void print(const T &&) {}
+  void print(T &&) {}
 };
 
 template <typename Output, typename SeverityFilter = LowestSeverityFilter,
