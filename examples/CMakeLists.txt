@@ -7,12 +7,13 @@
 # aggregate example targets under a pseudo-target
 add_custom_target(examples)
 
-list(APPEND PRJ_EXAMPLE_NAMES "example01")
+list(APPEND PRJ_EXAMPLE_NAMES "no_output")
+list(APPEND PRJ_EXAMPLE_NAMES "no_output_derived")
 
-foreach(prj_example_name ${PRJ_TEST_NAMES})
-  set(TEST_SOURCES "${prj_example_name}.cpp")
+foreach(prj_example_name ${PRJ_EXAMPLE_NAMES})
+  set(EXAMPLE_SOURCES "${prj_example_name}.cpp")
 
-  add_executable(${prj_example_name} ${TEST_SOURCES})
+  add_executable(${prj_example_name} ${EXAMPLE_SOURCES})
 
   set_target_properties(${prj_example_name} PROPERTIES 
     CXX_STANDARD 11
