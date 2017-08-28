@@ -46,6 +46,8 @@ target_include_directories(${PRJ_NAME} INTERFACE
 set(TESTEE_LIB ${PRJ_NAME})
 
 add_subdirectory(unittests)
+add_subdirectory(examples)
+add_subdirectory(doc)
 
 
 attach_compilation_db(TARGET ${PRJ_NAME})
