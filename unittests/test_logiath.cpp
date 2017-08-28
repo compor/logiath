@@ -48,6 +48,10 @@ TEST_F(test_logiath, err_output) {
   Logiath<CerrOutput, decltype(alert), NoPrefix> logger;
   logger.log(ALERT, "test", " ", txt);
 
+  logger.set_severity(WARN);
+  logger.log(WARN, "this is a warning");
+  logger.log(ALERT, "this is an alert");
+
   EXPECT_TRUE(true);
 }
 

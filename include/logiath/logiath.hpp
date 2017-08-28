@@ -6,6 +6,7 @@
 #define LOGIATH_HPP
 
 #include <type_traits>
+// using std::enable_if
 
 namespace logiath {
 
@@ -93,7 +94,11 @@ class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
   using suffix_policy = Suffix;
   using severity_filter_policy = SeverityFilter;
 
-  Logiath() { Output::open(); }
+  Logiath() {
+    m_severity = severity_filter_policy::value;
+    Output::open();
+  }
+
   ~Logiath() { Output::close(); }
 
   Logiath(const Logiath &) = delete;
@@ -102,6 +107,8 @@ class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
   template <typename S, typename... Ts>
   typename std::enable_if<(S::value >= SeverityFilter::value)>::type log(
       S s, Ts... args) {
+    if (S::value < m_severity) return;
+
     printer::vprint(Prefix::get(), args...);
     printer::vprint(Suffix::get());
   }
@@ -109,6 +116,16 @@ class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
   template <typename S, typename... Ts>
   typename std::enable_if<(S::value < SeverityFilter::value)>::type log(
       S s, Ts... args) {}
+
+  severity get_severity() const { return m_severity; }
+  void set_severity(severity s) { m_severity = s; }
+  template <typename S>
+  void set_severity(S s) {
+    m_severity = S::value;
+  }
+
+ protected:
+  severity m_severity;
 };
 
 template <typename SeverityFilter, typename Prefix, typename Suffix>
