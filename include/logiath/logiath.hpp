@@ -85,7 +85,8 @@ struct NoOutput {
 };
 
 template <typename Output, typename SeverityFilter = LowestSeverityFilter,
-          typename Prefix = NoPrefix, typename Suffix = NewlineSuffix>
+          typename Prefix = NoPrefix, typename Suffix = NewlineSuffix,
+          bool = std::is_base_of<Output, NoOutput>::value>
 class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
  protected:
   using printer = detail::Printer<Output>;
@@ -130,8 +131,9 @@ class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
   severity m_severity;
 };
 
-template <typename SeverityFilter, typename Prefix, typename Suffix>
-class Logiath<NoOutput, SeverityFilter, Prefix, Suffix> {
+template <typename Output, typename SeverityFilter, typename Prefix,
+          typename Suffix>
+class Logiath<Output, SeverityFilter, Prefix, Suffix, true> {
  public:
   using output_policy = NoOutput;
 
