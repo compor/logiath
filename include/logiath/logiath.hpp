@@ -55,12 +55,12 @@ namespace detail {
 template <typename Output>
 struct Printer : Output {
   template <typename T>
-  static void vprint(const T &v) {
+  void vprint(const T &v) {
     Output::print(v);
   }
 
   template <typename T, typename... Ts>
-  static void vprint(const T &v, Ts... args) {
+  void vprint(const T &v, Ts... args) {
     Output::print(v);
     vprint(args...);
   }
@@ -69,25 +69,25 @@ struct Printer : Output {
 }  // namespace detail end
 
 struct NoPrefix {
-  static constexpr auto get() -> const char * { return ""; }
+  constexpr auto get_prefix() const -> const char * { return ""; }
 };
 
 struct NewlineSuffix {
-  static constexpr auto get() -> const char * { return "\n"; }
+  constexpr auto get_suffix() const -> const char * { return "\n"; }
 };
 
 struct NoOutput {
-  static void open() {}
-  static void close() {}
+  void open() {}
+  void close() {}
 
   template <typename T>
-  static void print(const T &) {}
+  void print(const T &) {}
 };
 
 template <typename Output, typename SeverityFilter = LowestSeverityFilter,
           typename Prefix = NoPrefix, typename Suffix = NewlineSuffix,
           bool = std::is_base_of<Output, NoOutput>::value>
-class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
+class Logiath : SeverityFilter, Prefix, Suffix, public detail::Printer<Output> {
  protected:
   using printer = detail::Printer<Output>;
 
@@ -99,26 +99,26 @@ class Logiath : SeverityFilter, Prefix, Suffix, detail::Printer<Output> {
 
   Logiath() {
     m_severity = severity_filter_policy::value;
-    Output::open();
+    output_policy::open();
   }
 
-  ~Logiath() { Output::close(); }
+  ~Logiath() { output_policy::close(); }
 
   Logiath(const Logiath &) = delete;
   Logiath &operator=(const Logiath &) = delete;
 
-  template <typename S, typename... Ts>
-  typename std::enable_if<(S::value >= SeverityFilter::value)>::type log(
-      S s, Ts... args) {
-    if (S::value < m_severity) return;
+  template <typename Sev, typename... Ts>
+  typename std::enable_if<(Sev::value >= severity_filter_policy::value)>::type
+  log(Sev s, Ts... args) {
+    if (Sev::value < m_severity) return;
 
-    printer::vprint(Prefix::get(), args...);
-    printer::vprint(Suffix::get());
+    printer::vprint(prefix_policy::get_prefix(), args...);
+    printer::vprint(suffix_policy::get_suffix());
   }
 
-  template <typename S, typename... Ts>
-  typename std::enable_if<(S::value < SeverityFilter::value)>::type log(
-      S s, Ts... args) {}
+  template <typename Sev, typename... Ts>
+  typename std::enable_if<(Sev::value < severity_filter_policy::value)>::type
+  log(Sev s, Ts... args) {}
 
   severity get_severity() const { return m_severity; }
   void set_severity(severity s) { m_severity = s; }
@@ -135,7 +135,7 @@ template <typename Output, typename SeverityFilter, typename Prefix,
           typename Suffix>
 class Logiath<Output, SeverityFilter, Prefix, Suffix, true> {
  public:
-  using output_policy = NoOutput;
+  using output_policy = Output;
 
   Logiath() = default;
   ~Logiath() = default;
