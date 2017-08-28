@@ -11,6 +11,12 @@
 #include <iostream>
 // using std::cerr
 
+#include <fstream>
+// using std::ofstream
+// using std::ios::binary
+// using std::ios::trunc
+// using std::ios::out
+
 #include <sstream>
 // using std::stringstream
 
@@ -42,6 +48,21 @@ struct StringStreamOutput {
 
  protected:
   std::stringstream ss;
+};
+
+struct FileOutput {
+  void open() {
+    os.open("example.log", std::ios::out | std::ios::binary | std::ios::trunc);
+  }
+  void close() { os.close(); }
+
+  template <typename T>
+  void print(T &&v) {
+    os << v;
+  }
+
+ protected:
+  std::ofstream os;
 };
 
 }  // namespace example end

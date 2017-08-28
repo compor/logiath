@@ -9,6 +9,7 @@ add_custom_target(examples)
 
 list(APPEND PRJ_EXAMPLE_NAMES "no_output")
 list(APPEND PRJ_EXAMPLE_NAMES "no_output_derived")
+list(APPEND PRJ_EXAMPLE_NAMES "file_output")
 
 foreach(prj_example_name ${PRJ_EXAMPLE_NAMES})
   set(EXAMPLE_SOURCES "${prj_example_name}.cpp")
