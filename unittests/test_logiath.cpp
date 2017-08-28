@@ -56,4 +56,26 @@ TEST_F(test_logiath, alert_filter_emerg_message) {
   EXPECT_TRUE(!cmp);
 }
 
+TEST_F(test_logiath, alert_filter_varying_severity_message) {
+  Logiath<example::StringStreamOutput, SeverityFilter<severity::ALERT> > logger;
+
+  std::string msg{""}, total_msg{""};
+
+  msg = "message 1";
+  logger.log(EMERG, msg);
+
+  msg = "message 2";
+  logger.log(ALERT, msg);
+  total_msg += msg + "\n";
+
+  logger.set_severity(CRIT);
+
+  msg = "message 3";
+  logger.log(ALERT, msg);
+
+  auto cmp = total_msg.compare(logger.to_string());
+
+  EXPECT_TRUE(!cmp);
+}
+
 }  // namespace anonymous end
