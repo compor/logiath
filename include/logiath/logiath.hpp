@@ -12,6 +12,7 @@
 
 #include <type_traits>
 // using std::enable_if
+// using std::is_base_of
 
 namespace logiath {
 
@@ -69,6 +70,21 @@ struct Printer : Output {
   }
 };
 
+template <severity S, severity K>
+using is_lt = typename std::enable_if<(S < K)>::type;
+
+template <severity S, severity K>
+using is_le = typename std::enable_if<(S <= K)>::type;
+
+template <severity S, severity K>
+using is_gt = typename std::enable_if<(S > K)>::type;
+
+template <severity S, severity K>
+using is_ge = typename std::enable_if<(S >= K)>::type;
+
+template <severity S, severity K>
+using are_eq = typename std::enable_if<(S == K)>::type;
+
 }  // namespace detail end
 
 struct NoPrefix {
@@ -111,8 +127,8 @@ class Logiath : SeverityFilter, Prefix, Suffix, public detail::Printer<Output> {
   Logiath &operator=(const Logiath &) = delete;
 
   template <typename Sev, typename... Ts>
-  typename std::enable_if<(Sev::value >= severity_filter_policy::value)>::type
-  log(Sev s, Ts &&... args) {
+  detail::is_ge<Sev::value, severity_filter_policy::value> log(Sev s,
+                                                               Ts &&... args) {
     if (Sev::value < m_severity) return;
 
     printer::vprint(prefix_policy::get_prefix(), std::forward<Ts>(args)...);
@@ -120,8 +136,8 @@ class Logiath : SeverityFilter, Prefix, Suffix, public detail::Printer<Output> {
   }
 
   template <typename Sev, typename... Ts>
-  typename std::enable_if<(Sev::value < severity_filter_policy::value)>::type
-  log(Sev s, Ts &&... args) {}
+  detail::is_lt<Sev::value, severity_filter_policy::value> log(Sev s,
+                                                               Ts &&... args) {}
 
   severity get_severity() const { return m_severity; }
   void set_severity(severity s) { m_severity = s; }
