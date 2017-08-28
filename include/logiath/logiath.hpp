@@ -7,6 +7,9 @@
 
 #include "logiath/config.hpp"
 
+#include <utility>
+// using std::forward
+
 #include <type_traits>
 // using std::enable_if
 
@@ -55,14 +58,14 @@ namespace detail {
 template <typename Output>
 struct Printer : Output {
   template <typename T>
-  void vprint(const T &v) {
-    Output::print(v);
+  void vprint(T &&v) {
+    Output::print(std::forward<T>(v));
   }
 
   template <typename T, typename... Ts>
-  void vprint(const T &v, Ts... args) {
-    Output::print(v);
-    vprint(args...);
+  void vprint(T &&v, Ts &&... args) {
+    Output::print(std::forward<T>(v));
+    vprint(std::forward<Ts>(args)...);
   }
 };
 
@@ -81,7 +84,7 @@ struct NoOutput {
   void close() {}
 
   template <typename T>
-  void print(const T &) {}
+  void print(const T &&) {}
 };
 
 template <typename Output, typename SeverityFilter = LowestSeverityFilter,
@@ -109,16 +112,16 @@ class Logiath : SeverityFilter, Prefix, Suffix, public detail::Printer<Output> {
 
   template <typename Sev, typename... Ts>
   typename std::enable_if<(Sev::value >= severity_filter_policy::value)>::type
-  log(Sev s, Ts... args) {
+  log(Sev s, Ts &&... args) {
     if (Sev::value < m_severity) return;
 
-    printer::vprint(prefix_policy::get_prefix(), args...);
+    printer::vprint(prefix_policy::get_prefix(), std::forward<Ts>(args)...);
     printer::vprint(suffix_policy::get_suffix());
   }
 
   template <typename Sev, typename... Ts>
   typename std::enable_if<(Sev::value < severity_filter_policy::value)>::type
-  log(Sev s, Ts... args) {}
+  log(Sev s, Ts &&... args) {}
 
   severity get_severity() const { return m_severity; }
   void set_severity(severity s) { m_severity = s; }
@@ -144,7 +147,7 @@ class Logiath<Output, SeverityFilter, Prefix, Suffix, true> {
   Logiath &operator=(const Logiath &) = delete;
 
   template <typename... Ts>
-  void log(Ts... args) {}
+  void log(Ts &&... args) {}
 };
 
 }  // namespace logiath end
