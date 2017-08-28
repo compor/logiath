@@ -5,9 +5,6 @@
 #include "gtest/gtest.h"
 // using testing::Test
 
-#include <iostream>
-// using std::cerr
-
 #include <string>
 // using std::string
 
@@ -24,27 +21,16 @@ class test_logiath : public testing::Test {
   test_logiath() {}
 };
 
-TEST_F(test_logiath, no_output) {
-  SeverityFilter<severity::ALERT> alert;
+TEST_F(test_logiath, alert_filter_alert_message) {
+  Logiath<example::StringStreamOutput, SeverityFilter<severity::ALERT> > logger;
 
-  Logiath<NoOutput> logger;
-  logger.log(ALERT, "test");
+  std::string msg{"message 1"};
+  logger.log(ALERT, msg);
+  msg += "\n";
 
-  EXPECT_TRUE(true);
-}
+  auto cmp = msg.compare(logger.to_string());
 
-TEST_F(test_logiath, err_output) {
-  SeverityFilter<severity::ALERT> alert;
-  std::string txt{"more test"};
-
-  Logiath<example::CerrOutput, decltype(alert), NoPrefix> logger;
-  logger.log(ALERT, "test", " ", txt);
-
-  logger.set_severity(WARN);
-  logger.log(WARN, "this is a warning");
-  logger.log(ALERT, "this is an alert");
-
-  EXPECT_TRUE(true);
+  EXPECT_TRUE(!cmp);
 }
 
 }  // namespace anonymous end
