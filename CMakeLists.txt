@@ -17,6 +17,7 @@ include(Util)
 
 option(PRJ_SKIP_TESTS "Skip configuring the project tests" OFF)
 option(PRJ_DEBUG "Enable project custom debug output facilities" ON)
+option(PRJ_DOC "Enable project documenation generation" OFF)
 
 if(PRJ_SKIP_TESTS)
   enable_testing()
