@@ -7,9 +7,22 @@
 
 #include "logiath/logiath.hpp"
 
+#include <iostream>
+// using std::cerr
+
 using namespace logiath;
 
 namespace {
+
+struct CerrOutput {
+  static void open() {}
+  static void close() {}
+
+  template <typename T>
+  static void print(const T &v) {
+    std::cerr << v;
+  }
+};
 
 class test_logiath : public testing::Test {
  public:

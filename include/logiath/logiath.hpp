@@ -5,9 +5,6 @@
 #ifndef LOGIATH_HPP
 #define LOGIATH_HPP
 
-#include <iostream>
-// using std::cerr
-
 namespace logiath {
 
 enum class severity : unsigned int {
@@ -75,16 +72,6 @@ struct NoOutput {
 
   template <typename T>
   static void print(const T &) {}
-};
-
-struct CerrOutput {
-  static void open() {}
-  static void close() {}
-
-  template <typename T>
-  static void print(const T &v) {
-    std::cerr << v;
-  }
 };
 
 template <typename Output, typename SeverityFilter = LowestSeverityFilter,
