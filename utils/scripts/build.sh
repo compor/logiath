@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+[[ $TRAVIS == "true" ]] && set -evx
+
+ci_exit() {
+  local rc=0
+  [[ ! -z $1 ]] && rc=$1
+
+  if [[ $TRAVIS == "true" ]]; then
+    true 
+  else
+    exit $rc
+  fi
+}
+
 # initialize configuration vars
 
 SRC_DIR=""
@@ -11,7 +24,7 @@ INSTALL_DIR=""
 if [ -z "$1" ]; then 
   echo "error: source directory was not provided" 
 
-  exit 1
+  ci_exit 1
 fi
 
 SRC_DIR=$1
@@ -31,24 +44,18 @@ echo "info: install dir: ${INSTALL_DIR}"
 echo ""
 
 
-LINKER_FLAGS="-Wl,-L$(llvm-config --libdir)" 
-LINKER_FLAGS="${LINKER_FLAGS} -Wl,-rpath=$(llvm-config --libdir)" 
-LINKER_FLAGS="${LINKER_FLAGS} -lc++ -lc++abi" 
-
-CC=clang CXX=clang++ \
-  cmake \
+cmake \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=On \
-  -DCMAKE_BUILD_TYPE=Debug \
-  -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
+  -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+  -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" \
   -DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}" \
   -DCMAKE_SHARED_LINKER_FLAGS="${LINKER_FLAGS}" \
   -DCMAKE_MODULE_LINKER_FLAGS="${LINKER_FLAGS}" \
-  -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
-  -DPRJ_SKIP_TESTS=OFF \
-  -DPRJ_DEBUG=ON \
+  -DPRJ_SKIP_TESTS=${PRJ_SKIP_TESTS} \
+  -DPRJ_DEBUG=${PRJ_DEBUG} \
   -DGTEST_ROOT=${GTEST_ROOT} \
+  -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
   "${SRC_DIR}"
 
-
-exit $?
+ci_exit $?
 
