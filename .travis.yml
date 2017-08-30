@@ -1,0 +1,160 @@
+#
+#
+#
+
+language: c++
+sudo: false
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.7
+    packages:
+      - tree
+      - gcc-4.9
+      - g++-4.9
+      - llvm-3.7
+      - llvm-3.7-tools
+      - clang-3.7
+      - libc++-dev
+      - libc++abi-dev
+      - clang-format-3.7
+
+env:
+  global:
+    - CMAKE_DIR=${TRAVIS_BUILD_DIR}/deps/cmake
+    - CMAKE_BIN_DIR=${CMAKE_DIR}/bin
+    - GTEST_SRC_DIR=${TRAVIS_BUILD_DIR}/deps/gtest
+    - GTEST_GCC_DIR=${TRAVIS_BUILD_DIR}/deps/gtest-libstdcxx
+    - GTEST_LLVM_DIR=${TRAVIS_BUILD_DIR}/deps/gtest-libcxx
+
+cache:
+  directories:
+    - ${CMAKE_DIR}
+    - ${GTEST_SRC_DIR}
+    - ${GTEST_GCC_DIR}
+    - ${GTEST_LLVM_DIR}
+
+matrix:
+  include:
+    - os: linux 
+      env: BUILD_TYPE=DEBUG PRJ_SKIP_TESTS=OFF PRJ_DEBUG=ON LLVM_VERSION=3.7
+      compiler: clang
+
+    - os: linux 
+      env: BUILD_TYPE=DEBUG PRJ_SKIP_TESTS=OFF PRJ_DEBUG=ON GCC_VERSION=4.9
+      compiler: gcc
+
+install:
+  # setup compiler flags
+  - |
+    if [[ $CXX == clang++ ]]; then
+      export CXX=clang++-${LLVM_VERSION}
+
+      DIR=$(dirname $(which $CXX))
+      EXT=-${CXX##*-}
+      if [[ $CXX == $EXT ]]; then 
+        EXT=""
+      fi
+
+      export LLVMCONFIG=${DIR}/llvm-config${EXT}
+
+      export CXX_FLAGS="-stdlib=libc++"
+
+      export LINKER_FLAGS="-Wl,-L$(${LLVMCONFIG} --libdir)" 
+      export LINKER_FLAGS="${LINKER_FLAGS} -Wl,-rpath=$(${LLVMCONFIG} --libdir)" 
+      export LINKER_FLAGS="${LINKER_FLAGS} -lc++ -lc++abi" 
+    fi
+
+  - |
+    if [[ $CXX == g++ ]]; then
+      export CXX=g++-${GCC_VERSION}
+    fi
+
+  - |
+    $CC --version
+    $CXX --version
+    if [[ ! -z $LLVMCONFIG ]]; then $LLVMCONFIG --version; fi
+
+  # location of all dependencies
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir -p ${DEPS_DIR} && pushd ${DEPS_DIR}
+
+  # install recent cmake
+  - |
+    if [[ -z "$(ls -A ${CMAKE_DIR})" ]]; then 
+      CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.tar.gz"
+      mkdir -p ${CMAKE_DIR}
+      travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${CMAKE_DIR}
+    fi
+
+    export PATH=${CMAKE_BIN_DIR}:${PATH}
+  - cmake --version
+
+  # download googletest
+  - |
+    if [[ $PRJ_SKIP_TESTS == "OFF" ]] && [[ -z "$(ls -A ${GTEST_SRC_DIR})" ]]; then 
+      GTEST_URL="https://github.com/google/googletest/archive/release-1.8.0.tar.gz"
+
+      mkdir -p ${GTEST_SRC_DIR}
+      travis_retry wget --quiet -O - ${GTEST_URL} | tar --strip-components=1 -xz -C ${GTEST_SRC_DIR}
+    fi
+
+  # install googletest built against libc++ with clang/llvm
+  - |
+    if [[ $PRJ_SKIP_TESTS == "OFF" ]] && [[ $CXX =~ clang++ ]]; then
+      echo one
+      ls -A ${GTEST_LLVM_DIR}
+      if [[ -z "$(ls -A ${GTEST_LLVM_DIR}/lib)" ]]; then 
+        echo two
+        mkdir -p ${GTEST_LLVM_DIR}-build
+
+        pushd ${GTEST_LLVM_DIR}-build
+        ${TRAVIS_BUILD_DIR}/utils/scripts/travis/build-gtest-libcxx.sh ${GTEST_SRC_DIR} ${GTEST_LLVM_DIR}
+        cmake --build . -- -j$(nproc)
+        tree .
+        ls -l .
+        mkdir -p ${GTEST_LLVM_DIR}/lib
+        cp ./lib*.a ${GTEST_LLVM_DIR}/lib
+        popd
+        ls -l ${GTEST_SRC_DIR}
+        cp -r ${GTEST_SRC_DIR}/include ${GTEST_LLVM_DIR}
+      fi
+
+      export GTEST_ROOT=${GTEST_LLVM_DIR}
+      echo $GTEST_ROOT
+    fi
+
+  # install googletest built against libstd++ with g++
+  - |
+    if [[ $PRJ_SKIP_TESTS == "OFF" ]] && [[ $CXX =~ g++ ]]; then
+      if [[ -z "$(ls -A ${GTEST_GCC_DIR})" ]]; then 
+        mkdir -p ${GTEST_GCC_DIR}-build
+
+        pushd ${GTEST_GCC_DIR}-build
+        cmake ${GTEST_SRC_DIR} -DCMAKE_INSTALL_PREFIX=${GTEST_GCC_DIR}
+        cmake --build . -- -j$(nproc)
+        mkdir -p ${GTEST_GCC_DIR}/lib
+        cp ${GTEST_GCC_DIR}-build/lib*.a ${GTEST_GCC_DIR}/lib
+        cp -r ${GTEST_SRC_DIR}/include ${GTEST_GCC_DIR}
+        popd
+      fi
+
+      export GTEST_ROOT=${GTEST_GCC_DIR}
+      echo $GTEST_ROOT
+    fi 
+
+  - popd
+
+
+before_script:
+  - mkdir -p build && cd build
+
+script:
+  - ${TRAVIS_BUILD_DIR}/utils/scripts/build.sh ${TRAVIS_BUILD_DIR}
+  - cmake --build . -- -j$(nproc)
+  - cmake --build . --target unittests -- -j$(nproc)
+  - if [[ $PRJ_SKIP_TESTS == "OFF" ]]; then ./run_unit_tests.sh; fi
+  - cmake --build . --target install
+
