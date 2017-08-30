@@ -1,7 +1,7 @@
 # cmake file
 
 if(NOT PRJ_DOC)
-  message(WARNING "Doc generation is disabled; skipping")
+  message(STATUS "Doc generation is disabled; skipping")
 
   return()
 endif()
