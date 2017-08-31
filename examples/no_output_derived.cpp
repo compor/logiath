@@ -2,15 +2,13 @@
 //
 //
 
-#include "logiath/logiath.hpp"
+#include "util.hpp"
 
 using namespace logiath;
 
-struct NoOutputDerived : NoOutput {};
-
 int main(int, char *[]) {
   SeverityFilter<severity::ALERT> alert;
-  Logiath<NoOutputDerived> logger;
+  Logiath<example::NoOutputDerived> logger;
 
   logger.log(ALERT, "message 1");
 

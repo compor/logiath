@@ -5,6 +5,10 @@
 #ifndef LOGIATH_EXAMPLE_UTIL_HPP
 #define LOGIATH_EXAMPLE_UTIL_HPP
 
+#include "logiath/logiath.hpp"
+
+using namespace logiath;
+
 #include <string>
 // using std::string
 
@@ -24,6 +28,8 @@
 // using std::forward
 
 namespace example {
+
+struct NoOutputDerived : NoOutput {};
 
 struct CerrOutput {
   static void open() {}

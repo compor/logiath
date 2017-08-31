@@ -2,11 +2,7 @@
 //
 //
 
-#include "logiath/logiath.hpp"
-
 #include "util.hpp"
-
-using namespace logiath;
 
 int main(int, char *[]) {
   SeverityFilter<severity::ALERT> alert;
