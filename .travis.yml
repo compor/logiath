@@ -53,12 +53,15 @@ install:
       export CXX=clang++-${LLVM_VERSION}
 
       DIR=$(dirname $(which $CXX))
-      EXT=-${CXX##*-}
-      if [[ $CXX == $EXT ]]; then 
+      EXT=${CXX##*-}
+      if [[ $CXX == $EXT ]]; then
         EXT=""
+      else
+        EXT="-${EXT}"
       fi
+      LLVMCONFIG=${DIR}/llvm-config${EXT}
 
-      export LLVMCONFIG=${DIR}/llvm-config${EXT}
+      export LLVMCONFIG
 
       export CXX_FLAGS="-stdlib=libc++"
 
@@ -104,22 +107,15 @@ install:
   # install googletest built against libc++ with clang/llvm
   - |
     if [[ $PRJ_SKIP_TESTS == "OFF" ]] && [[ $CXX =~ clang++ ]]; then
-      echo one
       ls -A ${GTEST_LLVM_DIR}
       if [[ -z "$(ls -A ${GTEST_LLVM_DIR}/lib)" ]]; then 
-        echo two
         mkdir -p ${GTEST_LLVM_DIR}-build
 
         pushd ${GTEST_LLVM_DIR}-build
         ${TRAVIS_BUILD_DIR}/utils/scripts/travis/build-gtest-libcxx.sh ${GTEST_SRC_DIR} ${GTEST_LLVM_DIR}
         cmake --build . -- -j$(nproc)
-        tree .
-        ls -l .
-        mkdir -p ${GTEST_LLVM_DIR}/lib
-        cp ./lib*.a ${GTEST_LLVM_DIR}/lib
+        cmake --build . --target install
         popd
-        ls -l ${GTEST_SRC_DIR}
-        cp -r ${GTEST_SRC_DIR}/include ${GTEST_LLVM_DIR}
       fi
 
       export GTEST_ROOT=${GTEST_LLVM_DIR}
@@ -135,9 +131,7 @@ install:
         pushd ${GTEST_GCC_DIR}-build
         cmake ${GTEST_SRC_DIR} -DCMAKE_INSTALL_PREFIX=${GTEST_GCC_DIR}
         cmake --build . -- -j$(nproc)
-        mkdir -p ${GTEST_GCC_DIR}/lib
-        cp ${GTEST_GCC_DIR}-build/lib*.a ${GTEST_GCC_DIR}/lib
-        cp -r ${GTEST_SRC_DIR}/include ${GTEST_GCC_DIR}
+        cmake --build . --target install
         popd
       fi
 
