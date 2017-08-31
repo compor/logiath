@@ -9,5 +9,13 @@ pushd ./unittests/
 
 @PRJ_UNIT_TEST_BINS@
 
+rc=$?
+
 popd
+
+if [[ $rc == 0 ]]; then 
+  true
+else 
+  false 
+fi
 

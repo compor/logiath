@@ -49,7 +49,7 @@ matrix:
 install:
   # setup compiler flags
   - |
-    if [[ $CXX == clang++ ]]; then
+    if [[ $CXX =~ ^clang++ ]]; then
       export CXX=clang++-${LLVM_VERSION}
 
       DIR=$(dirname $(which $CXX))
@@ -71,7 +71,7 @@ install:
     fi
 
   - |
-    if [[ $CXX == g++ ]]; then
+    if [[ $CXX =~ ^g++ ]]; then
       export CXX=g++-${GCC_VERSION}
     fi
 
@@ -97,7 +97,7 @@ install:
 
   # download googletest
   - |
-    if [[ $PRJ_SKIP_TESTS == "OFF" ]] && [[ -z "$(ls -A ${GTEST_SRC_DIR})" ]]; then 
+    if [[ $PRJ_SKIP_TESTS == "OFF" && -z "$(ls -A ${GTEST_SRC_DIR})" ]]; then 
       GTEST_URL="https://github.com/google/googletest/archive/release-1.8.0.tar.gz"
 
       mkdir -p ${GTEST_SRC_DIR}
@@ -106,8 +106,7 @@ install:
 
   # install googletest built against libc++ with clang/llvm
   - |
-    if [[ $PRJ_SKIP_TESTS == "OFF" ]] && [[ $CXX =~ clang++ ]]; then
-      ls -A ${GTEST_LLVM_DIR}
+    if [[ $PRJ_SKIP_TESTS == "OFF" && $CXX =~ ^clang++ ]]; then
       if [[ -z "$(ls -A ${GTEST_LLVM_DIR}/lib)" ]]; then 
         mkdir -p ${GTEST_LLVM_DIR}-build
 
@@ -124,8 +123,8 @@ install:
 
   # install googletest built against libstd++ with g++
   - |
-    if [[ $PRJ_SKIP_TESTS == "OFF" ]] && [[ $CXX =~ g++ ]]; then
-      if [[ -z "$(ls -A ${GTEST_GCC_DIR})" ]]; then 
+    if [[ $PRJ_SKIP_TESTS == "OFF" && $CXX =~ ^g++ ]]; then
+      if [[ -z "$(ls -A ${GTEST_GCC_DIR}/lib)" ]]; then 
         mkdir -p ${GTEST_GCC_DIR}-build
 
         pushd ${GTEST_GCC_DIR}-build
