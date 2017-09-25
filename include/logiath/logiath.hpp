@@ -27,11 +27,17 @@ enum class severity : unsigned int {
   DEBUG
 };
 
+template <severity S>
+struct Severity;
+
 #define LOGIATH_SEVERITY(NAME)                        \
-  struct NAME##_t final {                             \
+  template <>                                         \
+  struct Severity<severity::NAME> {                   \
     static constexpr severity value = severity::NAME; \
     static constexpr char const *const name = #NAME;  \
-  } NAME;
+  };                                                  \
+                                                      \
+  inline Severity<severity::NAME> NAME() { return Severity<severity::NAME>(); }
 
 LOGIATH_SEVERITY(EMERG);
 LOGIATH_SEVERITY(ALERT);

@@ -34,3 +34,5 @@ foreach(prj_example_name ${PRJ_EXAMPLE_NAMES})
   add_dependencies(examples ${prj_example_name})
 endforeach()
 
+add_subdirectory(multi_use)
+
