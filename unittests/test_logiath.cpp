@@ -36,11 +36,10 @@ TEST_F(test_logiath, alert_filter_alert_message) {
 TEST_F(test_logiath, alert_filter_debug_message) {
   Logiath<example::StringStreamOutput, SeverityFilter<severity::ALERT> > logger;
 
-  std::string msg{"message 1"};
-  logger.log(DEBUG(), msg);
-  msg += "\n";
+  std::string empty{""};
+  logger.log(DEBUG(), "message 1");
 
-  auto cmp = msg.compare(logger.to_string());
+  auto cmp = empty.compare(logger.to_string());
 
   EXPECT_TRUE(!cmp);
 }
@@ -48,10 +47,11 @@ TEST_F(test_logiath, alert_filter_debug_message) {
 TEST_F(test_logiath, alert_filter_emerg_message) {
   Logiath<example::StringStreamOutput, SeverityFilter<severity::ALERT> > logger;
 
-  std::string empty{""};
-  logger.log(EMERG(), "message 1");
+  std::string msg{"message 1"};
+  logger.log(EMERG(), msg);
+  msg += "\n";
 
-  auto cmp = empty.compare(logger.to_string());
+  auto cmp = msg.compare(logger.to_string());
 
   EXPECT_TRUE(!cmp);
 }
@@ -63,6 +63,7 @@ TEST_F(test_logiath, alert_filter_varying_severity_message) {
 
   msg = "message 1";
   logger.log(EMERG(), msg);
+  total_msg += msg + "\n";
 
   msg = "message 2";
   logger.log(ALERT(), msg);
@@ -71,7 +72,7 @@ TEST_F(test_logiath, alert_filter_varying_severity_message) {
   logger.set_severity(CRIT());
 
   msg = "message 3";
-  logger.log(ALERT(), msg);
+  logger.log(INFO(), msg);
 
   auto cmp = total_msg.compare(logger.to_string());
 

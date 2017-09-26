@@ -133,16 +133,16 @@ class Logiath : SeverityFilter, Prefix, Suffix, public detail::Printer<Output> {
   Logiath &operator=(const Logiath &) = delete;
 
   template <typename Sev, typename... Ts>
-  detail::is_ge<Sev::value, severity_filter_policy::value> log(Sev s,
+  detail::is_le<Sev::value, severity_filter_policy::value> log(Sev s,
                                                                Ts &&... args) {
-    if (Sev::value < m_severity) return;
+    if (Sev::value > m_severity) return;
 
     printer::vprint(prefix_policy::get_prefix(), std::forward<Ts>(args)...);
     printer::vprint(suffix_policy::get_suffix());
   }
 
   template <typename Sev, typename... Ts>
-  detail::is_lt<Sev::value, severity_filter_policy::value> log(Sev s,
+  detail::is_gt<Sev::value, severity_filter_policy::value> log(Sev s,
                                                                Ts &&... args) {}
 
   severity get_severity() const { return m_severity; }
