@@ -15,11 +15,11 @@ list(APPEND CMAKE_MODULE_PATH ${PRJ_CMAKE_MODULE_DIR})
 include(CMakePackageConfigHelpers)
 include(Util)
 
-option(PRJ_SKIP_TESTS "Skip configuring the project tests" OFF)
-option(PRJ_DEBUG "Enable project custom debug output facilities" ON)
-option(PRJ_DOC "Enable project documenation generation" OFF)
+option(LOGIATH_SKIP_TESTS "Skip configuring the project tests" OFF)
+option(LOGIATH_DEBUG "Enable project custom debug output facilities" ON)
+option(LOGIATH_DOC "Enable project documenation generation" OFF)
 
-if(PRJ_SKIP_TESTS)
+if(LOGIATH_SKIP_TESTS)
   enable_testing()
 endif()
 

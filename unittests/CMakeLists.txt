@@ -2,7 +2,7 @@
 
 # requirements
 
-if(PRJ_SKIP_TESTS)
+if(LOGIATH_SKIP_TESTS)
   message(STATUS "Testing is disabled; skipping unit tests")
 
   return()

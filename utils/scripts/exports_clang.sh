@@ -15,6 +15,6 @@ export LINKER_FLAGS="${LINKER_FLAGS} -lc++ -lc++abi"
 
 export BUILD_TYPE=Debug
 
-export PRJ_SKIP_TESTS=OFF
-export PRJ_DEBUG=ON
+export LOGIATH_SKIP_TESTS=OFF
+export LOGIATH_DEBUG=ON
 

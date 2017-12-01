@@ -1,6 +1,6 @@
 # cmake file
 
-if(NOT PRJ_DOC)
+if(NOT LOGIATH_DOC)
   message(STATUS "Doc generation is disabled; skipping")
 
   return()
