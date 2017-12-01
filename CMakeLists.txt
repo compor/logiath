@@ -18,6 +18,7 @@ include(Util)
 option(LOGIATH_SKIP_TESTS "Skip configuring the project tests" OFF)
 option(LOGIATH_DEBUG "Enable project custom debug output facilities" ON)
 option(LOGIATH_DOC "Enable project documenation generation" OFF)
+option(LOGIATH_COVERAGE "Enable project coverage generation" OFF)
 
 if(LOGIATH_SKIP_TESTS)
   enable_testing()

@@ -38,6 +38,10 @@ foreach(prj_test_name ${PRJ_TEST_NAMES})
     CXX_STANDARD_REQUIRED ON
     CMAKE_CXX_EXTENSIONS OFF)
 
+  if(LOGIATH_COVERAGE)
+    target_compile_options(${prj_test_name} PRIVATE --coverage)
+  endif()
+
   target_include_directories(${prj_test_name} PUBLIC ${CMAKE_SOURCE_DIR})
   target_include_directories(${prj_test_name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
   target_include_directories(${prj_test_name} PUBLIC ${GTEST_INCLUDE_DIRS})
@@ -45,6 +49,10 @@ foreach(prj_test_name ${PRJ_TEST_NAMES})
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
   target_include_directories(${prj_test_name} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
+
+  if(LOGIATH_COVERAGE)
+    target_link_libraries(${prj_test_name} PRIVATE --coverage)
+  endif()
 
   target_link_libraries(${prj_test_name} PUBLIC GTest::GTest GTest::Main)  
 
