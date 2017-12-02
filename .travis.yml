@@ -39,11 +39,11 @@ cache:
 matrix:
   include:
     - os: linux 
-      env: BUILD_TYPE=DEBUG PRJ_SKIP_TESTS=OFF PRJ_DEBUG=ON LLVM_VERSION=3.7
+      env: BUILD_TYPE=DEBUG LOGIATH_SKIP_TESTS=OFF LOGIATH_DEBUG=ON LLVM_VERSION=3.7
       compiler: clang
 
     - os: linux 
-      env: BUILD_TYPE=DEBUG PRJ_SKIP_TESTS=OFF PRJ_DEBUG=ON GCC_VERSION=4.9
+      env: BUILD_TYPE=DEBUG LOGIATH_SKIP_TESTS=OFF LOGIATH_DEBUG=ON GCC_VERSION=4.9
       compiler: gcc
 
 install:
@@ -97,7 +97,7 @@ install:
 
   # download googletest
   - |
-    if [[ $PRJ_SKIP_TESTS == "OFF" && -z "$(ls -A ${GTEST_SRC_DIR})" ]]; then 
+    if [[ $LOGIATH_SKIP_TESTS == "OFF" && -z "$(ls -A ${GTEST_SRC_DIR})" ]]; then 
       GTEST_URL="https://github.com/google/googletest/archive/release-1.8.0.tar.gz"
 
       mkdir -p ${GTEST_SRC_DIR}
@@ -106,7 +106,7 @@ install:
 
   # install googletest built against libc++ with clang/llvm
   - |
-    if [[ $PRJ_SKIP_TESTS == "OFF" && $CXX =~ ^clang++ ]]; then
+    if [[ $LOGIATH_SKIP_TESTS == "OFF" && $CXX =~ ^clang++ ]]; then
       if [[ -z "$(ls -A ${GTEST_LLVM_DIR}/lib)" ]]; then 
         mkdir -p ${GTEST_LLVM_DIR}-build
 
@@ -123,7 +123,7 @@ install:
 
   # install googletest built against libstd++ with g++
   - |
-    if [[ $PRJ_SKIP_TESTS == "OFF" && $CXX =~ ^g++ ]]; then
+    if [[ $LOGIATH_SKIP_TESTS == "OFF" && $CXX =~ ^g++ ]]; then
       if [[ -z "$(ls -A ${GTEST_GCC_DIR}/lib)" ]]; then 
         mkdir -p ${GTEST_GCC_DIR}-build
 
@@ -148,6 +148,6 @@ script:
   - ${TRAVIS_BUILD_DIR}/utils/scripts/build.sh ${TRAVIS_BUILD_DIR}
   - cmake --build . -- -j$(nproc)
   - cmake --build . --target unittests -- -j$(nproc)
-  - if [[ $PRJ_SKIP_TESTS == "OFF" ]]; then ./run_unit_tests.sh; fi
+  - if [[ $LOGIATH_SKIP_TESTS == "OFF" ]]; then ./run_unit_tests.sh; fi
   - cmake --build . --target install
 
