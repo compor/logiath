@@ -46,6 +46,10 @@ matrix:
       env: BUILD_TYPE=DEBUG LOGIATH_SKIP_TESTS=OFF LOGIATH_DEBUG=ON GCC_VERSION=4.9
       compiler: gcc
 
+    - os: linux 
+      env: BUILD_TYPE=DEBUG LOGIATH_SKIP_TESTS=OFF LOGIATH_DEBUG=ON LOGIATH_COVERAGE=ON GCC_VERSION=4.9
+      compiler: gcc
+
 install:
   # setup compiler flags
   - |
@@ -150,4 +154,7 @@ script:
   - cmake --build . --target unittests -- -j$(nproc)
   - if [[ $LOGIATH_SKIP_TESTS == "OFF" ]]; then ./run_unit_tests.sh; fi
   - cmake --build . --target install
+
+after_success:
+  - if [[ $LOGIATH_COVERAGE == "ON" ]]; then bash <(curl -s https://codecov.io/bash); fi
 
